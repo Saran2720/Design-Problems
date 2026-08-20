@@ -2,7 +2,6 @@ class SlidingWinDowLogGlobal{
     constructor(limit,windowSizeMs){
         this.limit = limit;
         this.windowSizeMs = windowSizeMs;
-
         this.queue=[];
     }
 

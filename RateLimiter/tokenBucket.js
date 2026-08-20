@@ -1,48 +1,46 @@
 class TokenBucket{
-
     constructor(capacity, refilRate){
-        this.capacity = capacity;
+        this.capacity=capacity;
         this.refilRate = refilRate;
+
         this.clients = new Map();
     }
 
-    allowRequest(clientId){
-        let client = this.clients.get(clientId);
 
-        if(!client){
-            client = {
-                tokens: this.capacity,
-                lastRefil : Date.now()
-            }
-            this.clients.set(clientId, client);
-        }
-
+    allowRequest(clinetId) {
         const now = Date.now();
-        const range = Math.floor((now - client.lastRefil)/1000);
-        const newTokens = range * this.refilRate;
 
-        if(newTokens>0){
-            client.tokens = Math.min(this.capacity, client.tokens + newTokens);
-            client.lastRefil = now;
+        if(!this.clients.has(clinetId)){
+            this.clients.set(clinetId, {
+                token: this.capacity,
+                lastReqProcessed:now
+            })
         }
 
+        const client = this.clients.get(clinetId);
 
-        if(client.tokens<1){
-            return false;
+
+        const tokensToAdd = (now - client.lastReqProcessed) * this.refilRate;
+        client.token = Math.min(client.token+tokensToAdd, this.capacity);
+        client.lastReqProcessed = now;
+
+        if(client.token>0){
+            client.token--;
+            this.process(clinetId);
+            return true;
         }
 
-        client.tokens--;
-        this.process(clientId, client);
-        return true;
+        return false;
     }
 
-    process(clientId, client){
-        console.log(clientId, client);
+    process(clinetId){
+        console.log("processing req for ",clinetId);
     }
 }
 
-const tokenBucket = new TokenBucket(10,5);
 
-for(let i=0;i<100;i++){
-    console.log(tokenBucket.allowRequest(1));
+
+const tokenBucket = new TokenBucket(5, 10);
+for (let i = 1; i <= 1000; i++) {
+    console.log(tokenBucket.allowRequest("c1"));
 }

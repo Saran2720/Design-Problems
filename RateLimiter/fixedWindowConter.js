@@ -18,11 +18,8 @@ class FixedWindowRateLimiterUserBased {
 
         //check whether the client count is reset after fixed window time
         if (now - client.windowStartTime >= this.windowSizeMs) {
-            client.count = 1;
+            client.count = 0;
             client.windowStartTime = now;
-
-            this.process(clientId);
-            return true;
         }
 
         if (client.count < this.limit) {
